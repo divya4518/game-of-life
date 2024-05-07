@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+	tools{
+		'jdk' 'java 8'
+}
+
+    stages {
+        stage('git') {
+            steps {
+                echo 'cloning git'
+		git branch: 'master', url: 'https://github.com/divya4518/game-of-life.git'
+
+            }
+        }
+
+ stage('code quality test') {
+            steps {
+                echo 'testing code quality'
+		sh 'mvn clean compile sonar:sonar'
+ 
+            }
+        }
+
+
+ stage('war file') {
+            steps {
+                echo 'generating war file using maven'
+		sh 'mvn clean install'
+
+            }
+        }
+
+
+ stage('deploying to tomcat') {
+            steps {
+                echo 'deploying to tomcat'
+		deploy adapters: [tomcat9(credentialsId: '6749ff4a-6fad-4481-a030-d7b958bbd1b9', path: '', url: 'http://100.25.136.106:8081/')], contextPath: 'divya123', war: '**/*.war'
+
+            }
+        }
+    }
+}
